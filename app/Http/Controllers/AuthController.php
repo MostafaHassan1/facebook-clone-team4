@@ -3,10 +3,15 @@
 namespace App\Http\Controllers;
 use App\User;
 use Validator;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Http\Controllers\Controller;
+use App\Mail\VeriyEmail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Illuminate\Mail\Message;
+
 class AuthController extends Controller
 {
     /**
@@ -24,14 +29,15 @@ class AuthController extends Controller
 
     public function register(Request $REQUEST)
     {
-       
+       $verification_code= Str::random(50);
+
        $validator =Validator::make($REQUEST->all(),
            [
-               'first_name'=>'required|max:225',
-               'last_name'=>'required|max:225',
+               'first_name'=>'required|string|min:3|max:12',
+               'last_name'=>'required|string|min:3|max:12',
                'email'=>'required|email:rfc,dns|unique:users',
                'password'=>'required|min:8',
-               'gender'=>'required',
+               'gender'=>'required|boolean',
                'birthdate'=>'required|date',
            ]
            );
@@ -41,8 +47,9 @@ class AuthController extends Controller
          
             $user = User::create(array_merge(
                 $validator->validated(),
-                ['password' => bcrypt($REQUEST->password)]
+                ['password' => bcrypt($REQUEST->password),'verif_mail'=>$verification_code,'remember_token'=>$verification_code]
             ));
+        Mail::to($user)->send(new VeriyEmail($user->name,$verification_code));
 
         return response()->json([
             'message' => 'Check your email inbox for verification link'
@@ -50,14 +57,9 @@ class AuthController extends Controller
         
     }
     //Verifing mails Hbdaya w yarab tzbot
-    public function verification_email()
+    public function verif_email($code)
 {
-    Notification::fake();
-
-    $userData = factory('App\Models\User')->make(['email_verified_at' => null]);
-    $this->post(route('api.register'), $userData);
-
-    Notification::assertSentTo(User::latest()->first(), VerifyEmail::class);
+    dd($code);
 }
 
     /**
@@ -68,10 +70,6 @@ class AuthController extends Controller
     public function login()
     {
         $credentials = request(['email', 'password']);
-
-        /*if(! verification_email()){
-            return "E-mail must be verified";
-        }*/
         if (! $token = auth()->attempt($credentials)) {
             return response()->json(['error' => 'something unValid mail or password'], 401);
         }
