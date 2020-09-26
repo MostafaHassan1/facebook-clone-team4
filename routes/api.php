@@ -27,6 +27,8 @@ Route::group([
     Route::post('me', 'AuthController@me');
 
 });
+Route::get('verify-email/{code}', 'AuthController@verif_email')->name('verify');
+
 /*Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });*/

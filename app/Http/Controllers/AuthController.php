@@ -21,7 +21,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login','register']]);
+        $this->middleware('auth:api', ['except' => ['login','register','verif_email']]);
     }
 
   
@@ -59,7 +59,17 @@ class AuthController extends Controller
     //Verifing mails Hbdaya w yarab tzbot
     public function verif_email($code)
 {
-    dd($code);
+    $user = User::where('verif_mail',$code)->first();
+    if ($user != null){
+        if($user->email_verified_at==null){
+        $user->update(['email_verified_at'=> now()]);
+        return "Email successfuly verified";}
+        
+        else
+            return "Email is already verified";
+    }
+    else 
+        return "code unValid";
 }
 
     /**
