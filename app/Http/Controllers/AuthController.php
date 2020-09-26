@@ -47,7 +47,7 @@ class AuthController extends Controller
          
             $user = User::create(array_merge(
                 $validator->validated(),
-                ['password' => bcrypt($REQUEST->password),'verif_mail'=>$verification_code,'remember_token'=>$verification_code]
+                ['password' => bcrypt($REQUEST->password),'verif_mail'=>$verification_code]
             ));
         Mail::to($user)->send(new VeriyEmail($user->name,$verification_code));
 
