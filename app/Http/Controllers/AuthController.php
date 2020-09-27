@@ -89,21 +89,21 @@ class AuthController extends Controller
         if($rules->fails()) {
             return response()->json(['success'=> false, 'error'=> $rules->messages()], 401);
         }
-        
+         $user = User::where('email',$request->email)->first();
+
        if (! $token = auth()->attempt($credentials)) {
             return response()->json(['success' => false, 
-            'error' => 'We cant find an account with this credentials. Please make sure you entered the right information and you have verified your email address.']
+            'error' => 'Wrong credintials, Please try to login with a valid e-mail and password.']
             , 401);
         }
 
-        $user = User::where('email',$request->email)->first();
-
+       
         if($user->email_verified_at != null)
         {
             return $this->respondWithToken($token);
         }
         else
-            return response()->json('Email  must be verified', 401);
+            return response()->json('Please check your email inbox for verfication email', 401);
            
     }
 
