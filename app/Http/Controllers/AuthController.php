@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Mail\Message;
 
+
 class AuthController extends Controller
 {
     /**
@@ -56,7 +57,7 @@ class AuthController extends Controller
              ], 201);
         
     }
-    //Verifing mails Hbdaya w yarab tzbot
+    //Verifing mails 
     public function verif_email($code)
 {
     $user = User::where('verif_mail',$code)->first();
@@ -77,14 +78,33 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login()
+    public function login(Request $request)
     {
-        $credentials = request(['email', 'password']);
-        if (! $token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'something unValid mail or password'], 401);
+        $credentials = $request->only(['email', 'password']);
+        $rules = Validator::make($request->all(),[
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+            
+        if($rules->fails()) {
+            return response()->json(['success'=> false, 'error'=> $rules->messages()], 401);
         }
-        //if(auth->email_verified_at !=)
-        return $this->respondWithToken($token);
+        
+       if (! $token = auth()->attempt($credentials)) {
+            return response()->json(['success' => false, 
+            'error' => 'We cant find an account with this credentials. Please make sure you entered the right information and you have verified your email address.']
+            , 401);
+        }
+
+        $user = User::where('email',$request->email)->first();
+
+        if($user->email_verified_at != null)
+        {
+            return $this->respondWithToken($token);
+        }
+        else
+            return response()->json('Email  must be verified', 401);
+           
     }
 
     /**
