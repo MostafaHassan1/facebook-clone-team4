@@ -89,7 +89,6 @@ class AuthController extends Controller
         if($rules->fails()) {
             return response()->json(['success'=> false, 'error'=> $rules->messages()], 401);
         }
-         $user = User::where('email',$request->email)->first();
 
        if (! $token = auth()->attempt($credentials)) {
             return response()->json(['success' => false, 
@@ -97,8 +96,7 @@ class AuthController extends Controller
             , 401);
         }
 
-       
-        if($user->email_verified_at != null)
+        if(auth()->user()->email_verified_at != null)
         {
             return $this->respondWithToken($token);
         }
