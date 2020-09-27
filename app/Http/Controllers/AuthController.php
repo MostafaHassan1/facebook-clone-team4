@@ -83,7 +83,7 @@ class AuthController extends Controller
         if (! $token = auth()->attempt($credentials)) {
             return response()->json(['error' => 'something unValid mail or password'], 401);
         }
-
+        //if(auth->email_verified_at !=)
         return $this->respondWithToken($token);
     }
 
