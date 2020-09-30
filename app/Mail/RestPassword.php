@@ -21,7 +21,7 @@ class VeriyEmail extends Mailable
     public function __construct($name,$code)
     {
         $this->name=$name;
-        $this->code=$code;   
+        $this->code=$code;
     }
 
     /**
@@ -31,6 +31,6 @@ class VeriyEmail extends Mailable
      */
     public function build()
     {
-        return $this->view('EmailVerify');
+        return $this->view('RestPassword');
     }
 }
