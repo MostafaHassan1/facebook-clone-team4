@@ -30,7 +30,7 @@ class AuthController extends Controller
 
     public function forgetPassword(Request $REQUEST)
     {
-       $code= Str::random(6);
+       $code= integer::random(6);
 
        $validator =Validator::make($REQUEST->all(),
            [
@@ -40,23 +40,17 @@ class AuthController extends Controller
            if($validator->fails()){
             return response()->json($validator->errors()->toJson(), 400);
             }
-        Mail::to($user)->send(new RestPassword($user->name,$code));
+            $user = DB::table('users')->where('email',$REQUEST->email)->update(['PassRestCode' => $code]);
+            Mail::to($user)->send(new RestPassword($user->name,$code));
+        
         
     }
     //Verifing mails 
-    public function RestPass($code)
+    public function RestPass($code, $email)
 {
-    $user = User::where('verif_mail',$code)->first();
-    if ($user != null){
-        if($user->email_verified_at==null){
-        $user->update(['email_verified_at'=> now()]);
-        return "Email successfuly verified";}
-        
-        else
-            return "Email is already verified";
-    }
-    else 
-        return "code unValid";
+    $user = User::where('PassRestCode',$code)->where('email',$email);
+
+    
 }
 
     
