@@ -26,7 +26,10 @@ class AuthController extends Controller
     }
 
   
-    //SignUp a new account
+    /**
+     * SignUp a new account
+     * @return \Illuminate\Http\JsonResponse
+     * */
 
     public function register(Request $REQUEST)
     {
@@ -57,7 +60,11 @@ class AuthController extends Controller
              ], 201);
         
     }
-    //Verifing mails 
+    /**
+     * Verifing mails 
+     * @return \Illuminate\Http\JsonResponse
+     * */
+    
     public function verif_email($code)
 {
     $user = User::where('verif_mail',$code)->first();
@@ -67,10 +74,11 @@ class AuthController extends Controller
         return "Email successfuly verified";}
         
         else
-            return "Email is already verified";
+            return response()->json('Email is already verified', 401);
     }
     else 
-        return "code unValid";
+        return response()->json(['success' => false, 'error' => 'Code unValid']
+        , 401);
 }
 
     /**

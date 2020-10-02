@@ -28,8 +28,8 @@ Route::group([
 
 });
 Route::get('verify-email/{code}', 'AuthController@verif_email')->name('verify');
-Route::post('forgetPassword', 'RestPasswordController@forgetPassword');
-Route::get('rest-password/{email}', 'RestPasswordController@RestPass');
+Route::post('forgetPassword/{password}', 'RestPasswordController@forgetPassword');
+//Route::get('rest-password/{email}', 'RestPasswordController@RestPass');
 
 
 /*Route::middleware('auth:api')->get('/user', function (Request $request) {

@@ -22,7 +22,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->date('birthdate');
             $table->boolean('gender');
-            $table->integer('PassRestCode');
+            $table->integer('PassRestCode')->nullable();
             $table->string('verif_mail')->unique();
             $table->rememberToken();
             $table->timestamps();

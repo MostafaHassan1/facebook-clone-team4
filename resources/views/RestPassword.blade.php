@@ -11,7 +11,7 @@
             <br>
             Enter the following digits:
             <!-- m4 htzhar 3la4an m4klet al name  //-->
-            <br> $code . 
+            <br> {{ $code }} . 
             
         </div>
     </body>
