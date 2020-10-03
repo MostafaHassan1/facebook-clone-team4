@@ -34,24 +34,28 @@ class RestPasswordController extends Controller
 
     public function forgetPassword(Request $REQUEST)
     {
+        
         //Create the 6 digit..
-        //something wrong
-       $code= Str::random(6)->int();
-       
+        //something wrong !!!!??????
+            $code= Str::random(6);
+        
+        // $code = mt_rand(100000, 999999);
+
         //make validations on the given mail to rest its password
-       $validator =Validator::make($REQUEST->all(),
-           [
-               'email'=>'required|email:rfc,dns|exists:users',
-           ]
-           );
-           
-           //cheak errors
-           if($validator->fails()){
-            return response()->json($validator->errors()->toJson(), 400);
+            $validator =Validator::make($REQUEST->all(),
+            [
+                'email'=>'required|email:rfc,dns|exists:users',
+            ]
+            );
+            
+        //cheak errors
+            if($validator->fails()){
+             return response()->json($validator->errors()->toJson(), 402);
             }
-            //insert the 6 digit in the database
+
+        //insert the 6 digit in the database
             $user = User::where('email',$REQUEST->email)->update(['PassRestCode' => $code]);
-          //send a mail to the user to rest the password
+        //send a mail to the user to rest the password
             Mail::to($user)->send(new RestPassword($user->name,$code));
 
     }
