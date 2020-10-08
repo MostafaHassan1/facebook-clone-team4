@@ -58,11 +58,37 @@ class RestPasswordController extends Controller
                 'message' => 'Check your email inbox for verification PIN'
                  ], 201);
     }
+
+    /**
+     * Confirm the PIN 
+     * 
+     */
+    public function ConfirmPIN(Request $request)
+{
+
+   $validator =Validator::make($request->all(),
+            [
+                'email'=>'required|email:rfc,dns|exists:users',
+                'PassRestCode'=>'required',
+            ]
+            );
+    if($validator->fails()){
+        return response()->json($validator->errors()->toJson(), 402);
+    } 
+    $user = User::where('email', $request->email)->where('PassRestCode', $request->PassRestCode)->first();
+    if($user)
+    {
+        return response()->json(['success' => true]);
+    }
+    return response()->json(['success' => false,'message'=>'inValid PIN'],422);
+}
+
+    
     /**
      * Verifing mails 
      *  @param  integer $code
      * @param string $email
-     * هيروحلها لما يدخل ال 6 ارقام صح
+     * 
      */
     public function RestPass($code, $email)
 {
