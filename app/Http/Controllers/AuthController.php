@@ -53,6 +53,7 @@ class AuthController extends Controller
                 $validator->validated(),
                 ['password' => bcrypt($REQUEST->password),'verif_mail'=>$verification_code]
             ));
+            //Azay b3ml access l al user->name w mfe4 aslan f el user name????????????????
         Mail::to($user)->send(new VeriyEmail($user->name,$verification_code));
 
         return response()->json([

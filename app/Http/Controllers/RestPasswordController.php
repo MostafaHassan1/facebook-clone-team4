@@ -7,9 +7,9 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Mail\VeriyEmail;
+use App\Mail\RestPassword;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
+//use Illuminate\Support\Str;
 use Illuminate\Mail\Message;
 
 class RestPasswordController extends Controller
@@ -31,15 +31,10 @@ class RestPasswordController extends Controller
      *  the password for a specific user
      *  send mail with 6 digits 
      */
-
     public function forgetPassword(Request $REQUEST)
     {
-        
         //Create the 6 digit..
-        //something wrong !!!!??????
-            $code= Str::random(6);
-        
-        // $code = mt_rand(100000, 999999);
+            $code = rand(100000, 999999);
 
         //make validations on the given mail to rest its password
             $validator =Validator::make($REQUEST->all(),
@@ -47,17 +42,21 @@ class RestPasswordController extends Controller
                 'email'=>'required|email:rfc,dns|exists:users',
             ]
             );
-            
         //cheak errors
             if($validator->fails()){
              return response()->json($validator->errors()->toJson(), 402);
             }
-
-        //insert the 6 digit in the database
+        //insert the 6 digit in the database <<DONE>>
             $user = User::where('email',$REQUEST->email)->update(['PassRestCode' => $code]);
-        //send a mail to the user to rest the password
-            Mail::to($user)->send(new RestPassword($user->name,$code));
-
+        
+        //Get the user from the database to view his/her name  <<DONE>>
+            $user2= User::where('email',$REQUEST->email)->where('PassRestCode' ,$code)->first();
+        
+        //send a mail to the user to rest the password <<Done>>
+            Mail::to($user2)->send(new RestPassword($user2->first_name,$code));
+            return response()->json([
+                'message' => 'Check your email inbox for verification PIN'
+                 ], 201);
     }
     /**
      * Verifing mails 
@@ -71,7 +70,7 @@ class RestPasswordController extends Controller
 
     //Delete the 6 digit for security
     $user = User::where('email',$REQUEST->email)->update(['PassRestCode' =>  null ]);
-    
+  
 }
 
     

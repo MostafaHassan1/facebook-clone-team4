@@ -5,13 +5,11 @@
     </head>
     <body>
         <div>
-            Hi {{ $name }};
+            Hi {{ $first_name }},
             <br>
             We resived a request to rest your facebook password.
             <br>
-            Enter the following digits:
-            <!-- m4 htzhar 3la4an m4klet al name  //-->
-            <br> {{ $code }} . 
+            Enter the following PIN number :  {{ $code }} . 
             
         </div>
     </body>

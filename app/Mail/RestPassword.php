@@ -7,20 +7,20 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class VeriyEmail extends Mailable
+class RestPassword extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $name,$code;
+    public $first_name,$code;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($name,$code)
+    public function __construct($first_name,$code)
     {
-        $this->name=$name;
+        $this->first_name=$first_name;
         $this->code=$code;
     }
 
