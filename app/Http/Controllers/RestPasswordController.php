@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\User;
+use DB;
 use Validator;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +22,7 @@ class RestPasswordController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['RestPass','forgetPassword']]);
+        $this->middleware('auth:api', ['except' => ['RestPass','forgetPassword','ConfirmPIN']]);
     }
 
   
@@ -75,6 +76,7 @@ class RestPasswordController extends Controller
     if($validator->fails()){
         return response()->json($validator->errors()->toJson(), 402);
     } 
+    //////////////////// M4 Mo3trf 2n al user Object
     $user = User::where('email', $request->email)->where('PassRestCode', $request->PassRestCode)->first();
     if($user)
     {
@@ -85,18 +87,34 @@ class RestPasswordController extends Controller
 
     
     /**
-     * Verifing mails 
-     *  @param  integer $code
-     * @param string $email
+     * Change the password then login the user 
      * 
      */
-    public function RestPass($code, $email)
+    public function RestPass(Request $request)
 {
-    $user = User::where('PassRestCode',$code)->where('email',$email);
 
-    //Delete the 6 digit for security
-    $user = User::where('email',$REQUEST->email)->update(['PassRestCode' =>  null ]);
-  
+    //////////////////// M4 Mo3trf 2n al user Object
+    $user = DB::table('users')->where('PassRestCode',$request->PassRestCode)->where('email',$request->email)->first();
+    if(! $user)
+    {
+        return response()->json(["error" => "PassRestCode is not valid"],422);
+    }
+    else {
+        $password= bcrypt($request->password);
+        //updating  the password value in the DB
+        $user = User::where('email',$request->email)->update(['password' =>  $password ]);
+        //Delete the 6 digit for security
+        $user = User::where('email',$request->email)->update(['PassRestCode' =>  null ]);
+        $credentials = $request->only(['email', 'password']);
+        if(auth()->user()->email_verified_at != null)
+        {
+            return $this->respondWithToken($token);
+        }
+        return response()->json(" Login Failed");
+    }
+   
+
+    
 }
 
     

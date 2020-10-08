@@ -30,6 +30,7 @@ Route::group([
 Route::get('verify-email/{code}', 'AuthController@verif_email')->name('verify');
 Route::post('forgetPassword', 'RestPasswordController@forgetPassword');
 Route::post('ConfirmPIN', 'RestPasswordController@ConfirmPIN');
+Route::post('RestPass', 'RestPasswordController@RestPass');
 //Route::get('rest-password/{email}', 'RestPasswordController@RestPass');
 
 
