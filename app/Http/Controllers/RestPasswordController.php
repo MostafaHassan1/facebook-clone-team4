@@ -32,13 +32,13 @@ class RestPasswordController extends Controller
      *  the password for a specific user
      *  send mail with 6 digits 
      */
-    public function forgetPassword(Request $REQUEST)
+    public function forgetPassword(Request $request)
     {
         //Create the 6 digit..
             $code = rand(100000, 999999);
 
         //make validations on the given mail to rest its password
-            $validator =Validator::make($REQUEST->all(),
+            $validator =Validator::make($request->all(),
             [
                 'email'=>'required|email:rfc,dns|exists:users',
             ]
@@ -47,13 +47,13 @@ class RestPasswordController extends Controller
             if($validator->fails()){
              return response()->json($validator->errors()->toJson(), 402);
             }
-        //insert the 6 digit in the database <<DONE>>
-            $user = User::where('email',$REQUEST->email)->update(['PassRestCode' => $code]);
+        //insert the 6 digit in the database 
+            $user = User::where('email',$request->email)->update(['PassRestCode' => $code]);
         
-        //Get the user from the database to view his/her name  <<DONE>>
-            $user2= User::where('email',$REQUEST->email)->where('PassRestCode' ,$code)->first();
+        //Get the user from the database to view his/her name  
+            $user2= User::where('email',$request->email)->where('PassRestCode' ,$code)->first();
         
-        //send a mail to the user to rest the password <<Done>>
+        //send a mail to the user to rest the password 
             Mail::to($user2)->send(new RestPassword($user2->first_name,$code));
             return response()->json([
                 'message' => 'Check your email inbox for verification PIN'
@@ -70,15 +70,16 @@ class RestPasswordController extends Controller
    $validator =Validator::make($request->all(),
             [
                 'email'=>'required|email:rfc,dns|exists:users',
-                'PassRestCode'=>'required',
+                'Code'=>'required',
             ]
             );
     if($validator->fails()){
         return response()->json($validator->errors()->toJson(), 402);
     } 
-    //////////////////// M4 Mo3trf 2n al user Object
-    $user = User::where('email', $request->email)->where('PassRestCode', $request->PassRestCode)->first();
-    if($user)
+    
+    $user2= User::where('email',$request->email)->where('PassRestCode' ,$request->Code)->first();
+    
+    if($user2)
     {
         return response()->json(['success' => true]);
     }
@@ -93,28 +94,25 @@ class RestPasswordController extends Controller
     public function RestPass(Request $request)
 {
 
-    //////////////////// M4 Mo3trf 2n al user Object
-    $user = DB::table('users')->where('PassRestCode',$request->PassRestCode)->where('email',$request->email)->first();
+    $user= User::where('email',$request->email)->where('PassRestCode' ,$request->Code)->first();
+    
     if(! $user)
     {
         return response()->json(["error" => "PassRestCode is not valid"],422);
     }
     else {
         $password= bcrypt($request->password);
-        //updating  the password value in the DB
-        $user = User::where('email',$request->email)->update(['password' =>  $password ]);
-        //Delete the 6 digit for security
-        $user = User::where('email',$request->email)->update(['PassRestCode' =>  null ]);
+        //updating  the password value in the DB and Delete the 6 digit for security
+        $user = User::where('email',$request->email)->update(['password' =>  $password ,'PassRestCode' =>  null ]);
+        
         $credentials = $request->only(['email', 'password']);
-        if(auth()->user()->email_verified_at != null)
+        if( $token = auth()->attempt($credentials))
         {
             return $this->respondWithToken($token);
         }
         return response()->json(" Login Failed");
     }
    
-
-    
 }
 
     
