@@ -22,7 +22,7 @@ class RestPasswordController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['RestPass','forgetPassword','ConfirmPIN']]);
+        $this->middleware('auth:api', ['except' => ['RestPass','forgetPassword','ConfirmPIN','changepassword']]);
     }
 
   
@@ -115,7 +115,35 @@ class RestPasswordController extends Controller
    
 }
 
-    
+    /**
+     * change the password of a verifing loging in user
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function changepassword(Request $request)
+{
+    $validator =Validator::make($request->all(),
+            [
+                'email'=>'required|email:rfc,dns|exists:users',
+                'oldPassword'=>'required|min:8',
+                'newPassword'=>'required|min:8',
+            ]
+            );
+    if($validator->fails()){
+        return response()->json($validator->errors()->toJson(), 402);
+    }
+    $user= User::where('email', $request->email)->where('password', $request->oldPassword)->get();
+    //dd($user, $request->email, $request->oldPassword,$request->newPassword );
+    if( ! $user)
+    {
+        return response()->json(["error" => "old password is incorect"],422);
+    }
+    else if($user->password == $request->newPassword)
+    {
+         return response()->json(["error" => "the new password is the same as the old one"],422);
+    }
+    $user=User::where('email', $request->email)->where('password', $request->oldPassword)->update(['password' => $request->newPassword]);
+    return response()->json(["message" => "the password successfuly chaged"],201);
+}
 
     /**
      * Get the token array structure.
