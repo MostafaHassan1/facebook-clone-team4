@@ -132,7 +132,7 @@ class RestPasswordController extends Controller
         return response()->json($validator->errors()->toJson(), 402);
     }
     $user= User::where('email', $request->email)->where('password', $request->oldPassword)->get();
-    //dd($user, $request->email, $request->oldPassword,$request->newPassword );
+    dd($user, $request->email, $request->oldPassword,$request->newPassword );
     if( ! $user)
     {
         return response()->json(["error" => "old password is incorect"],422);
