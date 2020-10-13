@@ -96,7 +96,7 @@ class AuthController extends Controller
         ]);
             
         if($rules->fails()) {
-            return response()->json(['success'=> false, 'error'=> $rules->messages()], 401);
+            return response()->json(['success'=> false, 'error'=> $rules->messages()], 422);
         }
 
        if (! $token = auth()->attempt($credentials)) {

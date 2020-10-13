@@ -22,7 +22,7 @@ class RestPasswordController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['RestPass','forgetPassword','ConfirmPIN','changepassword']]);
+        $this->middleware('auth:api', ['except' => ['RestPass','forgetPassword','ConfirmPIN']]);
     }
 
   
@@ -45,7 +45,9 @@ class RestPasswordController extends Controller
             );
         //cheak errors
             if($validator->fails()){
-             return response()->json($validator->errors()->toJson(), 402);
+             return response()->json([
+                'message' => 'Check your email inbox for verification PIN'
+                 ], 201);
             }
         //insert the 6 digit in the database 
             $user = User::where('email',$request->email)->update(['PassRestCode' => $code]);
@@ -123,26 +125,31 @@ class RestPasswordController extends Controller
 {
     $validator =Validator::make($request->all(),
             [
-                'email'=>'required|email:rfc,dns|exists:users',
                 'oldPassword'=>'required|min:8',
                 'newPassword'=>'required|min:8',
+                'newPassword_confirmation'=>'required|min:8|same:newPassword',
             ]
             );
     if($validator->fails()){
-        return response()->json($validator->errors()->toJson(), 402);
+        return response()->json(['error' ,$validator->errors()->toJson()], 422);
     }
-    $user= User::where('email', $request->email)->where('password', $request->oldPassword)->get();
-    dd($user, $request->email, $request->oldPassword,$request->newPassword );
+    $user=auth()->user();
+    $user->password = bcrypt($request->oldPassword);
     if( ! $user)
     {
         return response()->json(["error" => "old password is incorect"],422);
     }
-    else if($user->password == $request->newPassword)
+    else if($request->newPassword != $request->newPassword_confirmation)
+    {
+        return response()->json(["error" => "the confirmation of the new password is incorect"],422);
+    }
+    else if($user->password == bcrypt($request->newPassword))
     {
          return response()->json(["error" => "the new password is the same as the old one"],422);
     }
-    $user=User::where('email', $request->email)->where('password', $request->oldPassword)->update(['password' => $request->newPassword]);
-    return response()->json(["message" => "the password successfuly chaged"],201);
+    $user->update(['password'=> bcrypt( $request->newPassword)]);
+   
+    return response()->json(["message" => "the password successfuly changed"],201);
 }
 
     /**
@@ -161,3 +168,4 @@ class RestPasswordController extends Controller
         ]);
     }
 }
+// auth()->user(); btgeb el token bta3 el user 
