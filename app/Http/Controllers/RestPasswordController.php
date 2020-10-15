@@ -139,16 +139,17 @@ class RestPasswordController extends Controller
     {
         return response()->json(["error" => "old password is incorect"],422);
     }
+   //else if ($user) return $user->first_name;
     else if($request->newPassword != $request->newPassword_confirmation)
     {
         return response()->json(["error" => "the confirmation of the new password is incorect"],422);
     }
-    else if($user->password == bcrypt($request->newPassword))
+    else if($user->bcrypt(password) == bcrypt($request->newPassword))
     {
-         return response()->json(["error" => "the new password is the same as the old one"],422);
+        return response()->json(["error" => "the new password is the same as the old one"],422);
     }
     $user->update(['password'=> bcrypt( $request->newPassword)]);
-   
+
     return response()->json(["message" => "the password successfuly changed"],201);
 }
 
